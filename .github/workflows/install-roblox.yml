@@ -21,28 +21,50 @@ jobs:
       - name: Find Installed Roblox Version Folder
         id: find_roblox
         run: |
+          # Define the root directory for Roblox installations
           $RobloxRoot = "$env:LOCALAPPDATA\Roblox\Versions"
-          $LatestVersionFolder = Get-ChildItem -Path $RobloxRoot -Directory | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          $RobloxExePath = "$RobloxRoot\$LatestVersionFolder\RobloxPlayerBeta.exe"
-
-          echo "Roblox EXE Path: $RobloxExePath"
-          echo "ROBLOX_EXE_PATH=$RobloxExePath" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "ROBLOX_FOLDER=$RobloxRoot\$LatestVersionFolder" | Out-File -FilePath $env:GITHUB_ENV -Append
+          
+          # Check if the Versions folder exists
+          if (Test-Path $RobloxRoot) {
+              # Get the most recently created subfolder inside Versions
+              $LatestVersionFolder = Get-ChildItem -Path $RobloxRoot -Directory | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+              $RobloxExePath = "$RobloxRoot\$LatestVersionFolder\RobloxPlayerBeta.exe"
+              
+              # Output the path of the Roblox executable and the version folder
+              echo "Roblox EXE Path: $RobloxExePath"
+              echo "ROBLOX_EXE_PATH=$RobloxExePath" | Out-File -FilePath $env:GITHUB_ENV -Append
+              echo "ROBLOX_FOLDER=$RobloxRoot\$LatestVersionFolder" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+              Write-Error "Roblox Versions folder not found at $RobloxRoot"
+              exit 1
+          }
 
       - name: Create Windows Shortcut
         run: |
-          $WScriptShell = New-Object -ComObject WScript.Shell
-          $Shortcut = $WScriptShell.CreateShortcut("$env:ROBLOX_FOLDER\Roblox Install.lnk")
-          $Shortcut.TargetPath = "$env:ROBLOX_EXE_PATH"
-          $Shortcut.Save()
+          # Ensure the Roblox executable path is found before creating the shortcut
+          if ($env:ROBLOX_EXE_PATH) {
+              $WScriptShell = New-Object -ComObject WScript.Shell
+              $Shortcut = $WScriptShell.CreateShortcut("$env:ROBLOX_FOLDER\Roblox Install.lnk")
+              $Shortcut.TargetPath = "$env:ROBLOX_EXE_PATH"
+              $Shortcut.Save()
+          } else {
+              Write-Error "Roblox executable path not found."
+              exit 1
+          }
         shell: powershell
 
       - name: Package Installed Roblox into ZIP
         run: |
-          Compress-Archive -Path "$env:ROBLOX_FOLDER\*" -DestinationPath "RobloxClient.zip"
+          # Check if the Roblox folder exists before attempting to zip
+          if (Test-Path $env:ROBLOX_FOLDER) {
+              Compress-Archive -Path "$env:ROBLOX_FOLDER\*" -DestinationPath "RobloxClient.zip"
+          } else {
+              Write-Error "Roblox folder not found at $env:ROBLOX_FOLDER"
+              exit 1
+          }
 
       - name: Upload ZIP as Artifact
-        uses: actions/upload-artifact@v4  # Use v4, the latest version
+        uses: actions/upload-artifact@v4
         with:
           name: RobloxClient
           path: RobloxClient.zip
