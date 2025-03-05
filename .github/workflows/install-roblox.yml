@@ -42,7 +42,7 @@ jobs:
           Compress-Archive -Path "$env:ROBLOX_FOLDER\*" -DestinationPath "RobloxClient.zip"
 
       - name: Upload ZIP as Artifact
-        uses: actions/upload-artifact@v2  # Updated to v2
+        uses: actions/upload-artifact@v3  # Use latest version of v3
         with:
           name: RobloxClient
           path: RobloxClient.zip
