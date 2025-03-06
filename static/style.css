@@ -1,0 +1,103 @@
+:root {
+    --primary-blue: #007AFF;
+    --secondary-blue: #0055FF;
+    --background: #000814;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--background);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.light-rays {
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200vh;
+    height: 200vh;
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 122, 255, 0.15) 0%,
+        rgba(0, 122, 255, 0.1) 20%,
+        rgba(0, 122, 255, 0.05) 40%,
+        transparent 70%
+    );
+    animation: rotate 20s linear infinite;
+    z-index: 2;
+}
+
+.container {
+    text-align: center;
+    z-index: 3;
+    position: relative;
+}
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px rgba(0, 122, 255, 0.5);
+}
+
+.ripple-button {
+    position: relative;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    background: var(--primary-blue);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ripple-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 122, 255, 0.4);
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: translateX(-50%) rotate(0deg);
+    }
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}
